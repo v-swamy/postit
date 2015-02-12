@@ -1,0 +1,13 @@
+<%= render 'shared/content_title', title: "Categories" %>
+
+<div class = 'well'>
+  <% @categories.each do |cat| %>
+    <p><%= cat.name %></p>
+  <% end %>
+</div>
+
+<%= form_tag("/categories", method: "post") do %>
+  <%= label_tag(:name, "Create a category") %>
+  <%= text_field_tag(:name) %>
+  <%= submit_tag("Submit") %>
+<% end %>

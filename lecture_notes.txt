@@ -1,0 +1,167 @@
+Bundler gem uses Gemfile to install necessary gems for apps.
+- Heroku uses the Gemfile too
+- Gemfile.lock shows gem dependencies
+
+3 important files
+- config/database.yml file
+    + shows the app how to connect to the database
+        * development sqlite3, production uses postgres
+    + for sqlite3, DB is in DBfolder
+- Gemfile
+- routes.rb
+    + Shows all URL endpoints for the app
+    
+ActiveRecord is the interface for the database
+
+In config folder, environments folder files override main application.rb file
+
+Will spend most of time in:
+- routes.rb
+- controllers
+- models
+- views
+
+In controllers, render is default in actions
+- view template is in folder under views with same name as controller
+
+Relational Databases
+- Like multiple spreadsheets
+- unique id keeps track of each row (primary key)
+- foreign key column contains primary key of another table
+- The foreign key column occurs on the many side of 1:M association
+
+ActiveRecord
+- ORM: Object Relational Mapper
+- Each row is an object, getters/setters for each column
+- rails console to see SQL
+
+Virtual attribute
+
+-.new loads into memory but doesn't commit to database
+-.create will post to database
+
+Mass Assignment:  Post.create(title: 'some title', url: 'some url', user: User.first)
+vs.
+post.title = 'asdfasd', etc.
+
+Migrations
+- 'change' method is actually replacement for 'up' and 'down' methods
+- 'up' is "create_table", 'down' is 'drop_table'
+- 'tableize' method to show the table name expected
+
+In model class definition, the 'belongs_to' expects a symbol, and foreign key to match the symbol.  But you can modify:
+belongs_to :creator, foreign_key: 'user_id', class_name: 'User'
+- this creates post.creator method vs. post.user
+
+ActiveRecord abstracts away the database
+
+Migrations help with the incremental changes to database schema, so that other people using the code can generate the same database schema, also for production servers
+
+rake db:rollback will roll back the last migration that you ran
+
+DON'T ROLLBACK MIGRATIONS, MAKE NEW ONES
+
+Many-to-Many (M:M)
+Database level
+- Through a join table
+    + Keeps track of unique permutations of the primary keys of the 2 tables
+Model layer
+- has_and_belongs_to_many
+    - no join model
+    - implicit join table at db layer
+    - table1name_table2name (i.e. groups_users)
+    - problems:
+        + can't put additional attributes/columns on association 
+- has_many :through
+    + has a join model/table
+    + can put additional attributes/columns on associations
+
+Resources
+- normally, routes are like 
+    + get '/posts/:id', to: 'posts#show'
+- resources takes care of all the basic CRUD routes
+    + like resources :posts, except: [:destroy] do
+    +   resources :comments, only: [:create]
+
+USE NAMED ROUTES ALWAYS (can check with /rails/info or rake routes)
+
+Resources:
+automatically declares routes
+GET /photos photos#index  photos_path
+GET /photos/:id photos#show photo_path(:id)
+GET /photos/new photos#new new_photo_path
+GET /photos/:id/edit photos#edit edit_photo_path
+POST /photos photos#create 
+PATCH /photos/:id/ photos#update
+DELETE /photos/:id/ photos#destroy
+
+Model backed forms
+-'form_for' takes an object (i.e. post)
+- model backed forms need to use attributes/virtual attributes from model
+    + Will get error if using text_field that doesn't match attribute
+- Rails form tag helpers create hidden div with token for security
+- Model backed forms, the name on the input tag takes the format post[title]
+    + Creates a nested structure {post: {title: blah blah}}
+    + So that you can say Post.create(params[:post]) to do mass assignment
+
+Strong parameters
+- To allow use permissions, etc.
+- Wrap params in a method
+    + use for create and update (the non-GET routes)
+    + have to permit the keys we want to assign
+    + params.require(:post).permit(:title, etc. etc.) 
+        * or params.require(:post).permit! (:post is top level key)
+
+Link_to - when using a block, the first paramater is the route, then the body of the block is the HTML
+
+<select> tag is HTML for boxes
+    <option> drop down options
+        specify options value='1'
+        specify multiple='multiple' for multiple options
+        name = 'options[]' (if array is expected, Rails convention)
+
+For strong parameters, to permit, need to use "category_ids: []" syntax
+
+Asset pipeline
+ - Hide and compress assets (CSS, Javascript) for production
+ - At production, takes 'assets' folder and moves into 'public'
+ - Sprockets built in
+ - Heroku takes care of it in deployment
+ - Can use rake task to pre-compile, but then Heroku won't do it, can cause complications when changes are made
+
+has_secure_password
+-  built in Rails hashing
+-  one-way hash conversion
+-  'password_digest' column (has to be called this)
+-  bcrypt will hashify, gives user.password method to set 'password_digest'
+-  has_secure_password will also give authenticate method (built-in with Rails)
+    -user.authenticate will return false if password is wrong, will return user object if it is right.
+
+Memoization
+- use "||=" - will keep the variable in memory if there are multiple callbacks
+- for performance optimization
+- if the variable '@current_user' exists, don't execute the code to the right
+
+'!!' turns method into boolean
+
+helper_method makes the application controller methods available to views
+
+have to use before_action to check for log-in before allowing actions
+
+Can use 'tab: 'comments'' in user_path to show tab navigation
+
+Polymorphic Associations
+-  Applies to one-to-many association
+-  Rails convention - '-able type' and '-able id'
+
+
+
+
+
+
+ 
+
+
+
+
+
